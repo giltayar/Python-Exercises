@@ -8,10 +8,13 @@ with the exception raised in the last attempt, if it failed N times.
 >> def foo(...)
 """
 
+from functools import wraps
+
 def retry(number_of_times):
     def ret(func):
+        @wraps(func)
         def func_substitute(*args, **kwds):
-            for i in range(number_of_times):
+            for i in xrange(number_of_times):
                 try:
                     return func(*args, **kwds)
                 except Exception as e:
