@@ -7,3 +7,17 @@ with the exception raised in the last attempt, if it failed N times.
 >> @retry(3)
 >> def foo(...)
 """
+
+def retry(number_of_times):
+    def ret(func):
+        def func_substitute(*args, **kwds):
+            for i in range(number_of_times):
+                try:
+                    return func(*args, **kwds)
+                except Exception as e:
+                    if (i == number_of_times - 1):
+                        raise
+        return func_substitute
+    return ret
+    
+    
