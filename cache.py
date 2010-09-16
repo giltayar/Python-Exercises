@@ -15,21 +15,20 @@ the result depends only on the call's arguments.
 """
 
 import pickle
+import functools
 
 def cache(f):
     _cache = {}
+    @functools.wraps(f)
     def cached_function(*args, **kwds):
-        try:
-            key = (tuple(args), tuple(kwds.items()))
-            
-            if key in _cache:
-                return _cache[key]
-            else:
-                result = f(*args, **kwds)
-                _cache[key] = result
-                return result
-        except pickle.PicklingError:
-            return f(*args, **kwds)
+        key = (args, tuple(kwds.items()))
+        
+        if key in _cache:
+            return _cache[key]
+        else:
+            result = f(*args, **kwds)
+            _cache[key] = result
+            return result
     
     return cached_function
 
