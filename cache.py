@@ -14,7 +14,6 @@ the result depends only on the call's arguments.
 >> foo(1,2) # returns result from cache. doesn't call wrapped function.
 """
 
-import pickle
 import functools
 
 def cache(f):
