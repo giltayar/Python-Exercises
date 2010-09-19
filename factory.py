@@ -6,3 +6,14 @@ A generic factory that creates objects for "roles" with registered creation func
 >> ...
 >> a = f.create('A',1,2,x=3) # create object of role 'A' and pass the other arguments to it's constructor
 """
+
+class Factory(object):
+    def __init__(self):
+        self._dct_creators = {} # name -> creator
+        
+    def register(self,name,creator):
+        self._dct_creators[name] = creator
+        
+    def create(self,name,*a,**kw):
+        creator = self._dct_creators[name]
+        return creator(*a,**kw)

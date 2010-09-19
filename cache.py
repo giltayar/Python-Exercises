@@ -14,22 +14,16 @@ the result depends only on the call's arguments.
 >> foo(1,2) # returns result from cache. doesn't call wrapped function.
 """
 
-import pickle
-import functools
-
 def cache(f):
-    _cache = {}
-    @functools.wraps(f)
-    def cached_function(*args, **kwds):
-        key = (args, tuple(kwds.items()))
-        
-        if key in _cache:
-            return _cache[key]
+    dct = {} # holds cache results { (args,kwargs) -> result }
+    def _wrapped(*a,**kw):
+        key = (a,tuple(kw.items()))
+        if key in dct:
+            return dct[key]
         else:
-            result = f(*args, **kwds)
-            _cache[key] = result
-            return result
-    
-    return cached_function
-
+            res = f(*a,**kw)
+            dct[key] = res
+            return res
+    _wrapped.__name__ = f.__name__
+    return _wrapped
     

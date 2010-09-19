@@ -19,3 +19,25 @@ synchronized is a method decorator that runs the method after acquiring the mute
 >>         ... # no two calls will run in parallel
 
 """
+
+# import RLock as convenience, since it is usually used together with this module
+from threading import RLock # PyFlakesIgnore
+
+class synchronize_using(object):
+    def __init__(self,lock):
+        self.lock = lock
+
+    def __enter__(self):
+        self.lock.acquire()
+        return self
+           
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.lock.release()
+    
+from functools import wraps        
+def synchronized(f):
+    @wraps(f)
+    def wrapper(self,*a,**kw):
+        with synchronize_using(self._lock):
+            return f(self,*a,**kw)
+    return wrapper

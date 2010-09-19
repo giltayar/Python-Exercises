@@ -9,18 +9,16 @@ with the exception raised in the last attempt, if it failed N times.
 """
 
 from functools import wraps
-
-def retry(number_of_times):
-    def ret(func):
-        @wraps(func)
-        def func_substitute(*args, **kwds):
-            for i in xrange(number_of_times):
+def retry(n_max):
+    def deco(f):
+        @wraps(f)
+        def _wrapped(*a,**kw):
+            for i in xrange(n_max):
                 try:
-                    return func(*args, **kwds)
-                except Exception as e:
-                    if (i == number_of_times - 1):
+                    return f(*a,**kw)
+                except:
+                    if i == n_max-1:
                         raise
-        return func_substitute
-    return ret
-    
+        return _wrapped
+    return deco
     
