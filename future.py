@@ -15,3 +15,18 @@ Simple usage:
 
 For more detailed description of the interface, see the unit tests.
 """
+########################################################################
+class Future(object):
+    
+    def set(self, value):
+        _value = value
+    
+    def get(self):
+        return _value
+        
+    def is_set(self):
+        return hasattr(self, '_value')
+    
+    
+    
+    
