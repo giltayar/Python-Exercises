@@ -15,3 +15,30 @@ Simple usage:
 
 For more detailed description of the interface, see the unit tests.
 """
+
+import threading
+class Future(object):
+
+    def __init__(self):
+        self._get_event = threading.Event()
+        self._observers = []
+
+    def get(self):
+        self._get_event.wait()
+        return self._value
+    
+    def set(self, value):
+        self._value = value
+        self._get_event.set()
+        for observer in self._observers:
+            observer(self)
+        
+    def is_set(self):
+        return self._get_event.is_set()
+
+    def attach_observer(self, observer):
+        self._observers.append(observer)
+        if self.is_set():
+            observer(self)
+        
+        
