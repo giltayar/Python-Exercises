@@ -18,6 +18,13 @@ For more detailed description of the interface, see the unit tests.
 
 import threading
 class Future(object):
+    
+    @classmethod
+    def preset(cls, value):
+        ret = Future()
+        ret.set(value)
+        
+        return ret
 
     def __init__(self):
         self._get_event = threading.Event()
@@ -25,20 +32,37 @@ class Future(object):
 
     def get(self):
         self._get_event.wait()
-        return self._value
+        
+        if not self.is_error():
+            return self._value
+        else:
+            raise self._exception
+        
+    def get_error(self):
+        self._get_event.wait()
+        
+        return self._exception
     
     def set(self, value):
         self._value = value
-        self._get_event.set()
-        for observer in self._observers:
-            observer(self)
+        self._fire_set()
+        
+    def set_error(self, exception):
+        self._exception = exception
+        self._fire_set()
         
     def is_set(self):
         return self._get_event.is_set()
+        
+    def is_error(self):
+        return hasattr(self, "_exception")
 
     def attach_observer(self, observer):
         self._observers.append(observer)
         if self.is_set():
             observer(self)
         
-        
+    def _fire_set(self):
+        self._get_event.set()
+        for observer in self._observers:
+            observer(self)
