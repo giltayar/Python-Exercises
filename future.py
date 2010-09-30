@@ -17,6 +17,7 @@ For more detailed description of the interface, see the unit tests.
 """
 
 import threading
+import synchronization
 
 class Future(object):
     
@@ -47,10 +48,12 @@ class Future(object):
         
         return self._exception
     
+    @synchronization.synchronized
     def set(self, value):
         self._value = value
         self._fire_set()
 
+    @synchronization.synchronized
     def set_error(self, exception):
         self._exception = exception
         self._fire_set()
@@ -61,6 +64,7 @@ class Future(object):
     def is_error(self):
         return self._exception != None
 
+    @synchronization.synchronized
     def attach_observer(self, observer):
         self._observers.append(observer)
         if self.is_set():
