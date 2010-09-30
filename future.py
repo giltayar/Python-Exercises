@@ -17,6 +17,7 @@ For more detailed description of the interface, see the unit tests.
 """
 
 import threading
+
 class Future(object):
     
     @classmethod
@@ -28,7 +29,10 @@ class Future(object):
 
     def __init__(self):
         self._get_event = threading.Event()
+        self._lock = threading.RLock()
         self._observers = []
+        self._value = None
+        self._exception = None
 
     def get(self):
         self._get_event.wait()
@@ -46,7 +50,7 @@ class Future(object):
     def set(self, value):
         self._value = value
         self._fire_set()
-        
+
     def set_error(self, exception):
         self._exception = exception
         self._fire_set()
@@ -55,7 +59,7 @@ class Future(object):
         return self._get_event.is_set()
         
     def is_error(self):
-        return hasattr(self, "_exception")
+        return self._exception != None
 
     def attach_observer(self, observer):
         self._observers.append(observer)
