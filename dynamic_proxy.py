@@ -13,15 +13,11 @@ See tracer.py and AO.py for usage examples
 >> a.foo(1,2,x=3) # assuming foo is not implemented in A, this is equivalent to:
                   # a._dispatch('foo',1,2,x=3)
 """
+import functools
 class DynamicProxy(object):
     def __getattr__(self, name):
-        myself = self
+        @functools.wraps(self._dispatch)
+        def wrapper(*args, **kwds):
+            return self._dispatch(name, *args, **kwds)
         
-        class ProxyCallable(object):
-            def __call__(*args, **kwds):
-                argsList = list(args)
-                argsList[0] = name
-                args = tuple(argsList)
-                return myself._dispatch(*args, **kwds)
-            
-        return ProxyCallable()
+        return wrapper
