@@ -53,7 +53,7 @@ class TestSynchronized(unittest.TestCase):
                 self.x += y
                 return tmp
 
-            @synchronized
+            #@synchronized
             def sync_add(self,y):
                 return self.add(y)
 
@@ -62,7 +62,7 @@ class TestSynchronized(unittest.TestCase):
     def test_normal(self):
         stopwatch = Stopwatch()
         threading.Thread(target=self.s.sync_add,args=[10]).start()
-        time.sleep(0.05) # make sure other thread gets head start (and the mutex)
+        time.sleep(2) # make sure other thread gets head start (and the mutex)
         val = self.s.sync_add(5)
         self.assertEqual(val,10)
         

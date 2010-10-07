@@ -15,18 +15,62 @@ Simple usage:
 
 For more detailed description of the interface, see the unit tests.
 """
-########################################################################
+
+import threading
+import synchronization
+
 class Future(object):
     
-    def set(self, value):
-        _value = value
-    
+    @classmethod
+    def preset(cls, value):
+        ret = Future()
+        ret.set(value)
+        
+        return ret
+
+    def __init__(self):
+        self._get_event = threading.Event()
+        self._lock = threading.RLock()
+        self._observers = []
+        self._value = None
+        self._exception = None
+
     def get(self):
-        return _value
+        self._get_event.wait()
+        
+        if not self.is_error():
+            return self._value
+        else:
+            raise self._exception
+        
+    def get_error(self):
+        self._get_event.wait()
+        
+        return self._exception
+    
+    @synchronization.synchronized
+    def set(self, value):
+        self._value = value
+        self._fire_set()
+
+    @synchronization.synchronized
+    def set_error(self, exception):
+        self._exception = exception
+        self._fire_set()
         
     def is_set(self):
-        return hasattr(self, '_value')
-    
-    
-    
-    
+        return self._get_event.is_set()
+        
+    def is_error(self):
+        return self._exception != None
+
+    @synchronization.synchronized
+    def attach_observer(self, observer):
+        self._observers.append(observer)
+        if self.is_set():
+            observer(self)
+        
+    def _fire_set(self):
+        self._get_event.set()
+        for observer in self._observers:
+            observer(self)
