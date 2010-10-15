@@ -5,7 +5,11 @@ def with_index(itr):
        Produces an iterable which returns pairs (i,x) where x is the value of the original,
        and i is it's index in the iteration, starting from 0.
     """
-    TODO
+    i = 0
+    for value in itr:
+        yield (i, value)
+        i = i + 1
+    
         
 def fibonacci():
     """An infinite generator for the fibonacci series, where:
@@ -13,7 +17,16 @@ def fibonacci():
        Fib[1] = 1
        Fib[n+2] = Fib[n] + Fib[n+1]
     """
-    TODO
+    f1 = 0
+    yield f1
+    f2 = 1
+    yield f2
+    while True:
+        f3 = f1 + f2
+        yield f3
+        f1 = f2
+        f2 = f3
+        
 
 def product(*seqs):
     """Same as itertools.product - Don't use this except as an exercise.
@@ -28,4 +41,5 @@ def product(*seqs):
        See my blog for discussion of this implementation: 
        http://www.ronnie-midnight-oil.net/2008/05/ok.html
     """
-    TODO
+    pass
+        
