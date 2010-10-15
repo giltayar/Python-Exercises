@@ -41,9 +41,7 @@ def product(*seqs):
        See my blog for discussion of this implementation: 
        http://www.ronnie-midnight-oil.net/2008/05/ok.html
     """
-    ret = [[]]
-    for seq in seqs:
-        ret = [ret_seq + [s] for ret_seq in ret for s in seq]
-            
-    for value in ret:
-        yield value
+    def combine(accumulated, seq):
+        return (seq_in_accumulated + [s] for seq_in_accumulated in accumulated for s in seq)
+    
+    return reduce(combine, seqs, [[]])
