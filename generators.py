@@ -8,7 +8,7 @@ def with_index(itr):
     i = 0
     for value in itr:
         yield (i, value)
-        i = i + 1
+        i += 1
     
         
 def fibonacci():
@@ -41,5 +41,9 @@ def product(*seqs):
        See my blog for discussion of this implementation: 
        http://www.ronnie-midnight-oil.net/2008/05/ok.html
     """
-    pass
-        
+    ret = [[]]
+    for seq in seqs:
+        ret = [ret_seq + [s] for ret_seq in ret for s in seq]
+            
+    for value in ret:
+        yield value
