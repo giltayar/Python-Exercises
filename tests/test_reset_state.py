@@ -12,9 +12,17 @@ class TestResetState(unittest.TestCase):
             def set_xy(self,x,y):
                 self.x = x
                 self.y = y
+                
+            def remove_x(self):
+                del self.x
 
         def verify(a,x,y):
-            self.assertEqual(a.x,x)
+            if (x != None):
+                self.assertEqual(a.x,x)
+            else:
+                def try_x():
+                    return a.x
+                self.assertRaises(AttributeError, try_x)
             self.assertEqual(a.y,y)
                 
         a = A(1,'ronnie')
@@ -34,6 +42,11 @@ class TestResetState(unittest.TestCase):
         a2.reset_state()
         verify(a2,2,'michal')
         verify(a,6,6)
+        
+        a2.remove_x()
+        verify(a2, None, 'michal')
+        a2.reset_state()
+        verify(a2,2,'michal')
                 
 if __name__ == '__main__':
     unittest.main()
