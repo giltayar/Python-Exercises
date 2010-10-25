@@ -19,3 +19,75 @@ Simple usage:
 
 For more detailed description of the interface, see the unit tests.
 """
+
+from dynamic_proxy import DynamicProxy
+from future import Future
+
+import threading
+import Queue
+
+class AO(DynamicProxy):
+    
+    def __init__(self, obj, n_threads = 1, parent_ao = None):
+        DynamicProxy.__init__(self)
+        self.obj = obj
+        if (parent_ao == None):
+            self.method_dispatch_queue = Queue.Queue()
+            self.threads = [threading.Thread(None, self.run) for i in xrange(n_threads)]
+        else:
+            self.method_dispatch_queue = parent_ao.method_dispatch_queue
+        
+    def start(self):
+        if hasattr(self.obj, 'start'):
+            self.obj.start()
+        for thread in self.threads:
+            thread.start()
+    
+    def run(self):
+        while True:
+            method_dispatch = self.method_dispatch_queue.get()
+            if method_dispatch == 'done':
+                break
+            self.dispatch_method(method_dispatch)
+            self.method_dispatch_queue.task_done()
+            
+    def dispatch_method(self, method_dispatch):
+        
+        try:
+            method = getattr(method_dispatch['obj'], method_dispatch['name'])
+        
+            method_dispatch['future'].set(method(*method_dispatch['args'], **method_dispatch['kwds']))
+            
+        except Exception as exception:
+            method_dispatch['future'].set_error(exception)
+    
+    def quit(self):
+        for thread in self.threads:
+            self.method_dispatch_queue.put('done')
+        
+        for thread in self.threads:
+            thread.join()
+            
+        if hasattr(self.obj, 'quit'):
+            self.obj.quit()
+        
+    def _dispatch(self, name, *args, **kwds):
+        future = Future()
+        
+        self.method_dispatch_queue.put({'obj': self.obj, 'name': name, 'args': args, 'kwds': kwds, 'future': future});
+        
+        return future
+    
+    def __str__(self):
+        return "%s(%s)" % (self.__class__.__name__, self.obj.__class__.__name__)
+        
+class SatelliteAO(AO):
+    def __init__(self, obj, parent_ao):
+        AO.__init__(self, obj, 1, parent_ao)
+        
+    def start(self):
+        pass
+
+    def quit(self):
+        raise Exception("Not allowed in satellite active objects")
+        

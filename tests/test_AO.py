@@ -54,7 +54,7 @@ class TestAO(unittest.TestCase):
     def test_passive_object_hooks(self):
         class Passive(object):
             def start(self):
-                self.ao_id = id(self._ao)
+                self.ao_id = id(ao)
             def quit(self):
                 self.b_quit = True
         
